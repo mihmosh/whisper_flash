@@ -1,0 +1,7 @@
+requests
+tqdm
+soundfile
+# For VAD
+torch
+torchaudio
+silero-vad

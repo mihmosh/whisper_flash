@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+
+# Cache files
+model_cache/
+temp_audio_chunks/
+temp_files/
+*.tmp
+
+# IDE files
+.idea/
+.vscode/

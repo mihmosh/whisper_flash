@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+python-multipart
+faster-whisper
+torch
+torchaudio
+
+# For GPU execution
+# torch and torchaudio are included in the base pytorch/pytorch image
+ctranslate2>=3.24.0,<4.0.0
