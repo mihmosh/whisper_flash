@@ -9,9 +9,8 @@ from tqdm import tqdm
 import torch
 import torchaudio
 import warnings
-
 # --- Configuration ---
-WORKER_URL = "http://localhost:8000"
+WORKER_URL = "http://localhost:8080"
 AUDIO_VIDEO_EXTS = {".wav", ".mp3", ".m4a", ".flac", ".aac", ".ogg",
                     ".mp4", ".mkv", ".mov", ".m4v", ".webm"}
 DEFAULT_VIDEO_DIR = Path(r"C:\Users\mosha\Videos")
@@ -134,7 +133,7 @@ def main():
                         
                         if result["status"] == "completed":
                             job_info["status"] = "completed"
-                            job_info["text"] = result["text"]
+                            job_info["data"] = result["result"] # Store the whole result object
                             completed_jobs += 1
                             pbar.update(1)
                         elif result["status"] == "error":
@@ -151,7 +150,20 @@ def main():
     # 5. Assemble and save the final transcript.
     print("Assembling final transcript...")
     sorted_chunks = sorted(chunk_jobs.values(), key=lambda x: x["order"])
-    full_text = " ".join(chunk["text"] for chunk in sorted_chunks if "text" in chunk).strip()
+    
+    # Assemble the full text from the 'text' field of each chunk's data
+    full_text = " ".join(chunk["data"]["text"] for chunk in sorted_chunks if "data" in chunk).strip()
+    
+    # Assemble the full JSON output with all segments
+    all_segments = []
+    for chunk in sorted_chunks:
+        if "data" in chunk and "segments" in chunk["data"]:
+            all_segments.extend(chunk["data"]["segments"])
+            
+    full_json_output = {
+        "text": full_text,
+        "segments": all_segments
+    }
 
     base = file_path.with_suffix("")
     txt_path = base.with_name(base.name + "_transcription.txt")
@@ -161,7 +173,7 @@ def main():
         f.write(full_text + "\n")
 
     with open(json_path, "w", encoding="utf-8") as f:
-        json.dump({"text": full_text}, f, ensure_ascii=False, indent=2)
+        json.dump(full_json_output, f, ensure_ascii=False, indent=2)
 
     print(f"\n[SUCCESS] Transcription complete!")
     print(f"[out] TXT:  {txt_path}")

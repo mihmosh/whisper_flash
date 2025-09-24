@@ -1,0 +1,68 @@
+swagger: '2.0'
+info:
+  title: transcriber-api
+  description: API for the Cloude Transcriber service
+  version: 1.0.0
+schemes:
+  - https
+produces:
+  - application/json
+paths:
+  /health:
+    get:
+      summary: Health check
+      operationId: healthCheck
+      x-google-backend:
+        address: https://transcriber-1-811229424702.europe-west4.run.app/health
+      responses:
+        '200':
+          description: A successful response
+          schema:
+            type: string
+      security:
+        - api_key: []
+  /enqueue_chunk:
+    post:
+      summary: Uploads an audio chunk for transcription
+      operationId: enqueueChunk
+      consumes:
+        - multipart/form-data
+      parameters:
+        - name: file
+          in: formData
+          type: file
+          required: true
+          description: The audio chunk to transcribe.
+      x-google-backend:
+        address: https://transcriber-1-811229424702.europe-west4.run.app/enqueue_chunk
+      responses:
+        '200':
+          description: A successful response
+          schema:
+            type: string
+      security:
+        - api_key: []
+  /get_result/{chunk_id}:
+    get:
+      summary: Retrieves the result of a transcription job
+      operationId: getResult
+      parameters:
+        - name: chunk_id
+          in: path
+          type: string
+          required: true
+          description: The ID of the chunk to get the result for.
+      x-google-backend:
+        address: https://transcriber-1-811229424702.europe-west4.run.app/get_result/{chunk_id}
+      responses:
+        '200':
+          description: A successful response
+          schema:
+            type: string
+      security:
+        - api_key: []
+securityDefinitions:
+  api_key:
+    type: apiKey
+    name: key
+    in: query

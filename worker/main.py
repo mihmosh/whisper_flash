@@ -42,12 +42,31 @@ async def process_queue():
                 logging.info(f"Starting transcription for {chunk_id}...")
                 
                 # Run the blocking transcribe function in a separate thread
-                segments, _ = await asyncio.to_thread(
-                    model.transcribe, str(file_path), beam_size=5, vad_filter=True
+                segments_generator, _ = await asyncio.to_thread(
+                    model.transcribe, str(file_path), beam_size=5, vad_filter=True, word_timestamps=True
                 )
                 
-                text = " ".join(s.text.strip() for s in segments)
-                results_store[chunk_id] = {"status": "completed", "text": text}
+                # Process the generator to build the final result
+                segments_data = []
+                full_text = []
+                for segment in segments_generator:
+                    segment_dict = {
+                        "start": segment.start,
+                        "end": segment.end,
+                        "text": segment.text,
+                        "words": [
+                            {"start": w.start, "end": w.end, "word": w.word} for w in segment.words
+                        ]
+                    }
+                    segments_data.append(segment_dict)
+                    full_text.append(segment.text.strip())
+
+                final_result = {
+                    "text": " ".join(full_text),
+                    "segments": segments_data
+                }
+
+                results_store[chunk_id] = {"status": "completed", "result": final_result}
                 logging.info(f"Finished transcription for {chunk_id}.")
 
             except Exception as e:
@@ -76,6 +95,7 @@ async def startup_event():
 
     # Synchronously load the model. This will block startup.
     try:
+        logging.info(f"Loading model '{MODEL_SIZE}' on device '{DEVICE}' with compute type '{COMPUTE_TYPE}'...")
         model = WhisperModel(MODEL_SIZE, device=DEVICE, compute_type=COMPUTE_TYPE)
         logging.info("Model loaded successfully.")
     except Exception as e:
@@ -122,7 +142,7 @@ async def get_result(chunk_id: str):
     - **chunk_id**: The unique ID of the task, returned by `/enqueue_chunk`.
 
     Possible statuses: `queued`, `completed`, `error`.
-    The `text` field is only present if the status is `completed`.
+    The `result` field is only present if the status is `completed`.
     The `message` field is only present if the status is `error`.
     """
     result = results_store.get(chunk_id)

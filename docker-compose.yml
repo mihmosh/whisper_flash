@@ -5,10 +5,32 @@ services:
     build:
       context: ./worker
     ports:
-      - "8000:8000"
+      - "8080:8080"
     environment:
       # Force Hugging Face libraries to use a specific cache directory.
       - HF_HOME=/cache
+      - PORT=8080
+    volumes:
+      # Mount our local cache to the specified directory in the container.
+      - ./model_cache:/cache
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+              
+  worker-slim:
+    build:
+      context: ./worker
+      dockerfile: Dockerfile.slim
+    ports:
+      - "8080:8080"
+    environment:
+      # Force Hugging Face libraries to use a specific cache directory.
+      - HF_HOME=/cache
+      - PORT=8080
     volumes:
       # Mount our local cache to the specified directory in the container.
       - ./model_cache:/cache

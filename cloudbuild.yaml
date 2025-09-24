@@ -1,0 +1,14 @@
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  entrypoint: 'bash'
+  args: ['-c', 'docker pull europe-west4-docker.pkg.dev/whisper-flash-instance/transcriber-repo/transcriber:latest || exit 0']
+- name: 'gcr.io/cloud-builders/docker'
+  args:
+  - 'build'
+  - '-t'
+  - 'europe-west4-docker.pkg.dev/whisper-flash-instance/transcriber-repo/transcriber:latest'
+  - './worker'
+  - '--cache-from'
+  - 'europe-west4-docker.pkg.dev/whisper-flash-instance/transcriber-repo/transcriber:latest'
+images:
+- 'europe-west4-docker.pkg.dev/whisper-flash-instance/transcriber-repo/transcriber:latest'

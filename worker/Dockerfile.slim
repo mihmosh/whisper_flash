@@ -1,5 +1,6 @@
-# Use the development version of the PyTorch image, which includes all CUDA/cuDNN libraries.
-FROM pytorch/pytorch:2.3.0-cuda11.8-cudnn8-devel
+# Use the runtime version of the PyTorch image to reduce size
+# This image doesn't include development tools but still supports CUDA
+FROM pytorch/pytorch:2.3.0-cuda11.8-cudnn8-runtime
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
@@ -18,15 +19,12 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Download and cache the model during the build
-COPY download_model.py .
-RUN python download_model.py
 
 # Copy the application code
 COPY main.py .
 
 # Expose the port the app runs on
-EXPOSE 8000
+EXPOSE 8080
 
 # Define the command to run the application
 # Use the PORT environment variable provided by Cloud Run

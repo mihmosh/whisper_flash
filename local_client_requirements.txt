@@ -1,7 +1,7 @@
 requests
 tqdm
-soundfile
-# For VAD
 torch
 torchaudio
-silero-vad
+soundfile
+silero
+google-auth
