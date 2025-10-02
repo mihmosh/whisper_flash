@@ -1,0 +1,73 @@
+{
+  "text": "Это в Playground тебе нужно зайти самой, ты можешь в OpenAI зайти,",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.58,
+      "text": " Это в Playground тебе нужно зайти самой, ты можешь в OpenAI зайти,",
+      "words": [
+        {
+          "start": 0.0,
+          "end": 0.14,
+          "word": " Это"
+        },
+        {
+          "start": 0.14,
+          "end": 0.2,
+          "word": " в"
+        },
+        {
+          "start": 0.2,
+          "end": 0.72,
+          "word": " Playground"
+        },
+        {
+          "start": 0.72,
+          "end": 0.96,
+          "word": " тебе"
+        },
+        {
+          "start": 0.96,
+          "end": 1.18,
+          "word": " нужно"
+        },
+        {
+          "start": 1.18,
+          "end": 1.66,
+          "word": " зайти"
+        },
+        {
+          "start": 1.66,
+          "end": 1.98,
+          "word": " самой,"
+        },
+        {
+          "start": 2.14,
+          "end": 2.26,
+          "word": " ты"
+        },
+        {
+          "start": 2.26,
+          "end": 2.44,
+          "word": " можешь"
+        },
+        {
+          "start": 2.44,
+          "end": 2.56,
+          "word": " в"
+        },
+        {
+          "start": 2.56,
+          "end": 3.02,
+          "word": " OpenAI"
+        },
+        {
+          "start": 3.02,
+          "end": 3.58,
+          "word": " зайти,"
+        }
+      ]
+    }
+  ],
+  "speaker": "track_2"
+}

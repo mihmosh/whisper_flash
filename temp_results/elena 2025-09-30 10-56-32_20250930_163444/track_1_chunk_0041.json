@@ -1,0 +1,18 @@
+{
+  "text": "अहाँ",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 0.5,
+      "text": " अहाँ",
+      "words": [
+        {
+          "start": 0.0,
+          "end": 0.5,
+          "word": " अहाँ"
+        }
+      ]
+    }
+  ],
+  "speaker": "track_1"
+}

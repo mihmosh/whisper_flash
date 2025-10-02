@@ -1,44 +1,44 @@
-# Развертывание в Google Cloud Platform
+# Deployment to Google Cloud Platform
 
-Этот документ описывает шаги для развертывания сервиса транскрипции в GCP с использованием Cloud Run и GPU.
+This document describes the steps to deploy the transcription service to GCP using Cloud Run with GPUs.
 
-## 1. Предварительные требования
+## 1. Prerequisites
 
-- Установленный `gcloud` CLI.
-- Установленный `docker`.
-- Проект в Google Cloud с привязанным платежным аккаунтом.
+- `gcloud` CLI installed.
+- `docker` installed.
+- A Google Cloud project with a billing account attached.
 
-## 2. Настройка проекта
+## 2. Project Setup
 
-1.  **Войдите в свой аккаунт Google Cloud:**
+1.  **Log in to your Google Cloud account:**
     ```bash
     gcloud auth login
     ```
 
-2.  **Установите ваш проект по умолчанию:**
+2.  **Set your default project:**
     ```bash
     gcloud config set project [YOUR_PROJECT_ID]
     ```
 
-3.  **Включите необходимые API:**
+3.  **Enable the required APIs:**
     ```bash
     gcloud services enable run.googleapis.com artifactregistry.googleapis.com cloudbuild.googleapis.com
     ```
 
-## 3. Сборка и публикация Docker-образа
+## 3. Build and Publish the Docker Image
 
-1.  **Создайте репозиторий в Artifact Registry:**
+1.  **Create a repository in Artifact Registry:**
     ```bash
     gcloud artifacts repositories create transcriber-repo --repository-format=docker --location=europe-west4
     ```
 
-2.  **Настройте Docker для аутентификации:**
+2.  **Configure Docker for authentication:**
     ```bash
     gcloud auth configure-docker europe-west4-docker.pkg.dev
     ```
 
-3.  **Соберите и отправьте образ с помощью Cloud Build:**
-    *   Создайте файл `cloudbuild.yaml` в корне проекта:
+3.  **Build and push the image using Cloud Build:**
+    *   Create a `cloudbuild.yaml` file in the project root:
         ```yaml
         steps:
         - name: 'gcr.io/cloud-builders/docker'
@@ -55,14 +55,14 @@
         images:
         - 'europe-west4-docker.pkg.dev/[YOUR_PROJECT_ID]/transcriber-repo/transcriber:latest'
         ```
-    *   Запустите сборку:
+    *   Start the build:
         ```bash
         gcloud builds submit --config cloudbuild.yaml .
         ```
 
-## 4. Развертывание в Cloud Run
+## 4. Deploy to Cloud Run
 
-Выполните следующие команды для развертывания четырех экземпляров сервиса:
+Execute the following commands to deploy four instances of the service:
 
 ```bash
 gcloud run deploy transcriber-1 \
@@ -102,6 +102,6 @@ gcloud run deploy transcriber-4 \
   --allow-unauthenticated
 ```
 
-## 5. Настройка клиента
+## 5. Client Configuration
 
-После развертывания вы получите URL для каждого сервиса. Их нужно будет вставить в `local_client.py` в список `WORKER_URLS`.
+After deployment, you will get a URL for each service. You will need to insert these into the `WORKER_URLS` list in `gcp_client.py` or the proxy configuration.

@@ -1,0 +1,23 @@
+{
+  "text": "Thank you.",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 0.24,
+      "text": " Thank you.",
+      "words": [
+        {
+          "start": 0.0,
+          "end": 0.24,
+          "word": " Thank"
+        },
+        {
+          "start": 0.24,
+          "end": 0.24,
+          "word": " you."
+        }
+      ]
+    }
+  ],
+  "speaker": "track_1"
+}

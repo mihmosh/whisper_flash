@@ -1,0 +1,18 @@
+{
+  "text": "Yeah.",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 0.32,
+      "text": " Yeah.",
+      "words": [
+        {
+          "start": 0.0,
+          "end": 0.32,
+          "word": " Yeah."
+        }
+      ]
+    }
+  ],
+  "speaker": "track_2"
+}

@@ -1,0 +1,23 @@
+{
+  "text": "Uh-huh.",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 0.22,
+      "text": " Uh-huh.",
+      "words": [
+        {
+          "start": 0.0,
+          "end": 0.14,
+          "word": " Uh"
+        },
+        {
+          "start": 0.14,
+          "end": 0.22,
+          "word": "-huh."
+        }
+      ]
+    }
+  ],
+  "speaker": "track_1"
+}

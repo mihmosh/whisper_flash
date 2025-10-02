@@ -1,0 +1,18 @@
+{
+  "text": "Evet.",
+  "segments": [
+    {
+      "start": 1.07,
+      "end": 1.55,
+      "text": " Evet.",
+      "words": [
+        {
+          "start": 1.07,
+          "end": 1.55,
+          "word": " Evet."
+        }
+      ]
+    }
+  ],
+  "speaker": "track_2"
+}

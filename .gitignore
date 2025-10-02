@@ -21,3 +21,7 @@ temp_files/
 # IDE files
 .idea/
 .vscode/
+
+# Secrets
+sa-key.json
+.env

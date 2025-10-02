@@ -1,3 +1,4 @@
+import os
 import time
 import threading
 from flask import Flask, request, Response
@@ -5,17 +6,21 @@ import requests
 import google.auth
 import google.auth.transport.requests
 import google.oauth2.id_token
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
 
 # --- Configuration ---
-TARGET_URLS = [
-    "https://transcriber-gpu-worker-811229424702.europe-west4.run.app",
-    "https://transcriber-gpu-worker-2-811229424702.europe-west4.run.app",
-    "https://transcriber-gpu-worker-3-811229424702.europe-west4.run.app",
-    "https://transcriber-gpu-worker-4-811229424702.europe-west4.run.app",
-]
-API_KEY = "your-super-secret-api-key"
+WORKER_URLS_STR = os.environ.get("WORKER_URLS")
+if not WORKER_URLS_STR:
+    raise ValueError("WORKER_URLS environment variable not set. Should be a comma-separated list of worker URLs.")
+TARGET_URLS = [url.strip() for url in WORKER_URLS_STR.split(',')]
+
+API_KEY = os.environ.get("PROXY_API_KEY")
+if not API_KEY:
+    raise ValueError("PROXY_API_KEY environment variable not set.")
 
 # --- Caching and Session Setup ---
 TOKEN_TTL = 300  # Cache tokens for 5 minutes

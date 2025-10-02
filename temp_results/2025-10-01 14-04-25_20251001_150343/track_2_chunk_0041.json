@@ -1,0 +1,18 @@
+{
+  "text": "Да.",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 0.72,
+      "text": " Да.",
+      "words": [
+        {
+          "start": 0.0,
+          "end": 0.72,
+          "word": " Да."
+        }
+      ]
+    }
+  ],
+  "speaker": "track_2"
+}

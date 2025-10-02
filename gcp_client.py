@@ -11,10 +11,18 @@ import concurrent.futures
 import torchaudio
 import warnings
 import argparse
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # --- Configuration ---
-PROXY_URL = "http://34.90.198.59"
-API_KEY = "your-super-secret-api-key" # This must match the key in the proxy_server.py
+PROXY_URL = os.environ.get("PROXY_URL")
+if not PROXY_URL:
+    raise ValueError("PROXY_URL environment variable not set. It should be the full URL of the proxy server.")
+
+API_KEY = os.environ.get("PROXY_API_KEY")
+if not API_KEY:
+    raise ValueError("PROXY_API_KEY environment variable not set.")
 AUDIO_VIDEO_EXTS = {".wav", ".mp3", ".m4a", ".flac", ".aac", ".ogg",
                     ".mp4", ".mkv", ".mov", ".m4v", ".webm"}
 DEFAULT_VIDEO_DIR = Path(r"C:\Users\mosha\Videos")
@@ -74,13 +82,13 @@ def extract_tracks(video_path: Path, out_dir: Path) -> list[tuple[str, Path]]:
     # Case 2: Multiple mono streams -> extract each one separately
     else:
         print(f"Detected {len(streams)} separate audio streams. Extracting each.")
-        for s in streams:
+        for i, s in enumerate(streams):
             stream_index = s['index']
             out_file = out_dir / f"{video_path.stem}_track_{stream_index}.wav"
             cmd = [
                 "ffmpeg", "-y", "-hide_banner", "-loglevel", "error",
                 "-i", str(video_path),
-                "-map", f"0:a:{stream_index}",
+                "-map", f"0:a:{i}",
                 "-ac", "1", "-ar", "16000", "-acodec", "pcm_s16le",
                 str(out_file)
             ]
@@ -245,8 +253,13 @@ def main(args):
         print("No audio tracks were extracted. Exiting.")
         return
 
-    # 3. Process each track
-    all_results = []
+    # 3. Create a unique directory for this job's results
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    results_dir = Path("temp_results") / f"{file_path.stem}_{timestamp}"
+    results_dir.mkdir(parents=True, exist_ok=True)
+    print(f"Saving raw results to: {results_dir}")
+
+    # 4. Process each track and save raw results
     for speaker, wav_path in extracted_tracks:
         print(f"\n--- Processing track: {speaker} ({wav_path.name}) ---")
         chunk_paths = chunk_audio_with_ffmpeg(wav_path)
@@ -254,40 +267,32 @@ def main(args):
             print(f"No speech detected in track {speaker}.")
             continue
 
-        # Process chunks for the current track
         track_jobs = {}
         max_concurrent_jobs = args.num_workers
         
         with tqdm(total=len(chunk_paths), desc=f"Transcribing {speaker}") as pbar:
             with concurrent.futures.ThreadPoolExecutor(max_workers=max_concurrent_jobs) as executor:
                 
-                # Create an iterator for the chunks to be submitted
                 chunk_iterator = iter(enumerate(chunk_paths))
-                
-                # Keep track of the futures that are currently running
                 futures = set()
                 
-                # Prime the queue with initial jobs
                 for _ in range(max_concurrent_jobs):
                     try:
                         i, chunk_path = next(chunk_iterator)
                         future = executor.submit(upload_chunk, (chunk_path, i, session, args.num_workers))
                         futures.add(future)
                     except StopIteration:
-                        break # No more chunks
+                        break
 
-                # Process futures as they complete, and submit new ones
                 while futures:
                     done, futures = concurrent.futures.wait(
                         futures, return_when=concurrent.futures.FIRST_COMPLETED
                     )
                     
                     for future in done:
-                        # Process the completed job
                         job_info = future.result()
                         if job_info:
                             track_jobs[job_info["chunk_id"]] = job_info
-                            # Poll for result
                             while job_info["status"] not in ["completed", "error"]:
                                 try:
                                     worker_id = job_info["worker_id"]
@@ -299,71 +304,121 @@ def main(args):
                                     if result["status"] in ["completed", "error"]:
                                         break
                                     time.sleep(1)
-                                except requests.exceptions.RequestException as e:
-                                    print(f"\nError polling for chunk {job_info['chunk_id']}: {e}. Retrying...")
+                                except requests.exceptions.RequestException:
                                     time.sleep(2)
-                        
+                            
+                            # Save the raw result to a file
+                            if job_info["status"] == "completed":
+                                result_data = job_info.get("result", {})
+                                result_data['speaker'] = speaker # Add speaker info
+                                result_filename = f"{speaker}_chunk_{job_info['order']:04d}.json"
+                                with open(results_dir / result_filename, "w", encoding="utf-8") as f:
+                                    json.dump(result_data, f, ensure_ascii=False, indent=2)
+
                         pbar.update(1)
 
-                        # Try to submit a new job
                         try:
                             i, chunk_path = next(chunk_iterator)
                             new_future = executor.submit(upload_chunk, (chunk_path, i, session, args.num_workers))
                             futures.add(new_future)
                         except StopIteration:
-                            # No more chunks to submit, the loop will drain the remaining futures
                             pass
-
-        # Assemble text for the current track using word timestamps for formatting
-        sorted_chunks = sorted(track_jobs.values(), key=lambda x: x["order"])
+    
+    print(f"\n[SUCCESS] Raw transcription data saved to {results_dir}")
+    
+    # 5. Post-process the results to create the final diarized transcript
+    print("\nPost-processing results...")
+    final_transcript = postprocess_results(results_dir)
+    
+    if final_transcript:
+        output_filename = results_dir.parent / f"{results_dir.name}_diarized.json"
+        with open(output_filename, "w", encoding="utf-8") as f:
+            json.dump(final_transcript, f, ensure_ascii=False, indent=2)
         
-        # Consolidate all word segments from all chunks into a single list
-        all_words = []
-        for chunk in sorted_chunks:
-            if chunk["status"] == "completed":
-                # The result from the worker should contain a 'words' list
-                # Example: {"text": "...", "words": [{"word": "hello", "start": 0.1, "end": 0.5}, ...]}
-                words = chunk.get("result", {}).get("words")
-                if words:
-                    all_words.extend(words)
+        print(f"\n[SUCCESS] Diarized transcript saved to {output_filename}")
+    else:
+        print("\nNo transcript generated.")
 
-        # Reconstruct the transcript with intelligent formatting based on pauses
-        track_text = ""
-        if all_words:
-            # Define pause thresholds (in seconds)
-            NEW_PARAGRAPH_THRESHOLD = 1.5
-            NEW_LINE_THRESHOLD = 0.7
+def postprocess_results(results_dir: Path):
+    """
+    Post-processes raw transcription results to create a diarized transcript.
+    """
+    # Group files by speaker and chunk number
+    chunks_by_speaker = {}
+    for json_file in results_dir.glob("*.json"):
+        filename = json_file.stem
+        parts = filename.rsplit('_chunk_', 1)
+        if len(parts) == 2:
+            speaker = parts[0]
+            chunk_num = int(parts[1])
+            if speaker not in chunks_by_speaker:
+                chunks_by_speaker[speaker] = []
+            chunks_by_speaker[speaker].append((chunk_num, json_file))
+    
+    # Sort chunks by number for each speaker
+    for speaker in chunks_by_speaker:
+        chunks_by_speaker[speaker].sort(key=lambda x: x[0])
+    
+    # Build timeline of all words with proper ordering
+    all_words = []
+    cumulative_time = 0.0
+    
+    # Interleave chunks from all speakers chronologically
+    max_chunks = max(len(chunks) for chunks in chunks_by_speaker.values()) if chunks_by_speaker else 0
+    
+    for chunk_idx in range(max_chunks):
+        for speaker in sorted(chunks_by_speaker.keys()):
+            if chunk_idx < len(chunks_by_speaker[speaker]):
+                _, json_file = chunks_by_speaker[speaker][chunk_idx]
+                with open(json_file, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    for segment in data.get('segments', []):
+                        for word in segment.get('words', []):
+                            all_words.append({
+                                'word': word.get('word', ''),
+                                'start': word.get('start', 0) + cumulative_time,
+                                'end': word.get('end', 0) + cumulative_time,
+                                'speaker': data.get('speaker', speaker)
+                            })
+                    # Update cumulative time based on last segment
+                    segments = data.get('segments', [])
+                    if segments:
+                        last_segment = segments[-1]
+                        cumulative_time += last_segment.get('end', 0)
 
-            last_word_end = 0.0
-            for word_info in all_words:
-                pause_duration = word_info['start'] - last_word_end
+    if not all_words:
+        print("No words found in the result files.")
+        return None
+
+    # Sort all words by their adjusted timestamps
+    all_words.sort(key=lambda x: x.get('start', 0))
+
+    # Interleave phrases based on speaker changes and pauses
+    final_transcript = []
+    if all_words:
+        current_speaker = all_words[0]['speaker']
+        current_phrase = ""
+        last_word_end = 0.0
+        PHRASE_BREAK_THRESHOLD = 1.0
+
+        for word_info in all_words:
+            pause_duration = word_info.get('start', 0) - last_word_end
+            
+            if word_info['speaker'] != current_speaker or (pause_duration >= PHRASE_BREAK_THRESHOLD and last_word_end > 0):
+                if current_phrase:
+                    final_transcript.append({"speaker": current_speaker, "text": current_phrase.strip()})
                 
-                if last_word_end > 0: # Don't add separator before the first word
-                    if pause_duration >= NEW_PARAGRAPH_THRESHOLD:
-                        track_text += "\n\n"
-                    elif pause_duration >= NEW_LINE_THRESHOLD:
-                        track_text += "\n"
-                    else:
-                        track_text += " "
-                
-                track_text += word_info['word']
-                last_word_end = word_info['end']
+                current_speaker = word_info['speaker']
+                current_phrase = word_info.get('word', '')
+            else:
+                current_phrase += " " + word_info.get('word', '')
+
+            last_word_end = word_info.get('end', 0)
         
-        all_results.append({"speaker": speaker, "text": track_text.strip()})
-
-    # 4. Save final diarized transcript
-    if not all_results:
-        print("\nNo text was transcribed.")
-        return
-        
-    base = file_path.with_suffix("")
-    json_path = base.with_name(base.name + "_transcription_diarized.json")
-
-    with open(json_path, "w", encoding="utf-8") as f:
-        json.dump(all_results, f, ensure_ascii=False, indent=2)
-
-    print(f"\n[SUCCESS] Transcription complete!")
-    print(f"[out] Diarized JSON: {json_path}")
+        if current_phrase:
+            final_transcript.append({"speaker": current_speaker, "text": current_phrase.strip()})
+    
+    return final_transcript
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Asynchronous transcription client.")

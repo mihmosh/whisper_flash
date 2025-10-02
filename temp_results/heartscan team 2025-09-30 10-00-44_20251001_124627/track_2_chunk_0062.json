@@ -1,0 +1,18 @@
+{
+  "text": "ОДС?",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.28,
+      "text": " ОДС?",
+      "words": [
+        {
+          "start": 0.0,
+          "end": 2.28,
+          "word": " ОДС?"
+        }
+      ]
+    }
+  ],
+  "speaker": "track_2"
+}

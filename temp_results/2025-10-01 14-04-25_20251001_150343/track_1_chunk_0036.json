@@ -1,0 +1,18 @@
+{
+  "text": "Нет.",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 0.3,
+      "text": " Нет.",
+      "words": [
+        {
+          "start": 0.0,
+          "end": 0.3,
+          "word": " Нет."
+        }
+      ]
+    }
+  ],
+  "speaker": "track_1"
+}

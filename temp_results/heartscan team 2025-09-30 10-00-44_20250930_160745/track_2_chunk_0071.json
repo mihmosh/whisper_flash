@@ -1,0 +1,58 @@
+{
+  "text": "и researchgate я могу, у меня аккаунт есть там",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 2.66,
+      "text": " и researchgate я могу, у меня аккаунт есть там",
+      "words": [
+        {
+          "start": 0.0,
+          "end": 0.32,
+          "word": " и"
+        },
+        {
+          "start": 0.32,
+          "end": 1.18,
+          "word": " researchgate"
+        },
+        {
+          "start": 1.18,
+          "end": 1.42,
+          "word": " я"
+        },
+        {
+          "start": 1.42,
+          "end": 1.66,
+          "word": " могу,"
+        },
+        {
+          "start": 1.8,
+          "end": 1.86,
+          "word": " у"
+        },
+        {
+          "start": 1.86,
+          "end": 1.96,
+          "word": " меня"
+        },
+        {
+          "start": 1.96,
+          "end": 2.36,
+          "word": " аккаунт"
+        },
+        {
+          "start": 2.36,
+          "end": 2.54,
+          "word": " есть"
+        },
+        {
+          "start": 2.54,
+          "end": 2.66,
+          "word": " там"
+        }
+      ]
+    }
+  ],
+  "speaker": "track_2"
+}

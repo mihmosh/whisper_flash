@@ -1,0 +1,23 @@
+{
+  "text": "Mm-hmm.",
+  "segments": [
+    {
+      "start": 0.94,
+      "end": 1.58,
+      "text": " Mm-hmm.",
+      "words": [
+        {
+          "start": 0.94,
+          "end": 1.42,
+          "word": " Mm"
+        },
+        {
+          "start": 1.42,
+          "end": 1.58,
+          "word": "-hmm."
+        }
+      ]
+    }
+  ],
+  "speaker": "track_1"
+}

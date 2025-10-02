@@ -1,0 +1,33 @@
+{
+  "text": "Yeah, it's mostly football.",
+  "segments": [
+    {
+      "start": 0.11,
+      "end": 0.97,
+      "text": " Yeah, it's mostly football.",
+      "words": [
+        {
+          "start": 0.11,
+          "end": 0.33,
+          "word": " Yeah,"
+        },
+        {
+          "start": 0.33,
+          "end": 0.33,
+          "word": " it's"
+        },
+        {
+          "start": 0.33,
+          "end": 0.69,
+          "word": " mostly"
+        },
+        {
+          "start": 0.69,
+          "end": 0.97,
+          "word": " football."
+        }
+      ]
+    }
+  ],
+  "speaker": "track_2"
+}

@@ -1,0 +1,73 @@
+{
+  "text": "Ну не R-table, а в lovable сразу как-то привязать, нет?",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 3.84,
+      "text": " Ну не R-table, а в lovable сразу как-то привязать, нет?",
+      "words": [
+        {
+          "start": 0.0,
+          "end": 0.16,
+          "word": " Ну"
+        },
+        {
+          "start": 0.16,
+          "end": 0.16,
+          "word": " не"
+        },
+        {
+          "start": 0.16,
+          "end": 0.42,
+          "word": " R"
+        },
+        {
+          "start": 0.42,
+          "end": 0.74,
+          "word": "-table,"
+        },
+        {
+          "start": 0.86,
+          "end": 1.1,
+          "word": " а"
+        },
+        {
+          "start": 1.1,
+          "end": 1.22,
+          "word": " в"
+        },
+        {
+          "start": 1.22,
+          "end": 1.88,
+          "word": " lovable"
+        },
+        {
+          "start": 1.88,
+          "end": 2.64,
+          "word": " сразу"
+        },
+        {
+          "start": 2.64,
+          "end": 3.0,
+          "word": " как"
+        },
+        {
+          "start": 3.0,
+          "end": 3.2,
+          "word": "-то"
+        },
+        {
+          "start": 3.2,
+          "end": 3.72,
+          "word": " привязать,"
+        },
+        {
+          "start": 3.72,
+          "end": 3.84,
+          "word": " нет?"
+        }
+      ]
+    }
+  ],
+  "speaker": "track_1"
+}

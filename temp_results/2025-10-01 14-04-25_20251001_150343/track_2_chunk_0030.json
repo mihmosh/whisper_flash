@@ -1,0 +1,43 @@
+{
+  "text": "ты уперла с Fire Table, возможно",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 1.58,
+      "text": " ты уперла с Fire Table, возможно",
+      "words": [
+        {
+          "start": 0.0,
+          "end": 0.12,
+          "word": " ты"
+        },
+        {
+          "start": 0.12,
+          "end": 0.72,
+          "word": " уперла"
+        },
+        {
+          "start": 0.72,
+          "end": 0.76,
+          "word": " с"
+        },
+        {
+          "start": 0.76,
+          "end": 0.92,
+          "word": " Fire"
+        },
+        {
+          "start": 0.92,
+          "end": 1.3,
+          "word": " Table,"
+        },
+        {
+          "start": 1.38,
+          "end": 1.58,
+          "word": " возможно"
+        }
+      ]
+    }
+  ],
+  "speaker": "track_2"
+}

@@ -1,0 +1,33 @@
+{
+  "text": "Thank you so much.",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 0.66,
+      "text": " Thank you so much.",
+      "words": [
+        {
+          "start": 0.0,
+          "end": 0.36,
+          "word": " Thank"
+        },
+        {
+          "start": 0.36,
+          "end": 0.38,
+          "word": " you"
+        },
+        {
+          "start": 0.38,
+          "end": 0.38,
+          "word": " so"
+        },
+        {
+          "start": 0.38,
+          "end": 0.66,
+          "word": " much."
+        }
+      ]
+    }
+  ],
+  "speaker": "track_2"
+}
